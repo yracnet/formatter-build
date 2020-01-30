@@ -2,10 +2,10 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.github.yracnet.format</groupId>
-    <artifactId>formatter-util</artifactId>
+    <artifactId>formatter-help</artifactId>
     <version>0.2.0</version>
     <packaging>jar</packaging>
-    <name>formatter-util</name>
+    <name>formatter-help</name>
     <description>Forrmater Utility for JAVA, JS, XML, CSS, HTML</description>
     <properties>
         <maven.compiler.source>11</maven.compiler.source>
@@ -171,6 +171,12 @@
             <artifactId>lombok</artifactId>
             <version>1.18.10</version>
             <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.w3c.css</groupId>
+            <artifactId>sac</artifactId>
+            <version>1.3</version>
+            <type>jar</type>
         </dependency>
     </dependencies>
 </project>
