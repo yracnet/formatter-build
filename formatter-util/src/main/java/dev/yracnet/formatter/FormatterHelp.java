@@ -9,6 +9,7 @@ import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -41,8 +42,7 @@ public class FormatterHelp {
      * @throws FormatterException the mojo execution exception
      */
     public static Map<String, String> getOptionsFromConfigFile(String newConfigFile, File basedir) throws FormatterException {
-        File configFile = searchFile(newConfigFile, basedir);
-        try (InputStream configInput = new FileInputStream(configFile)) {
+        try ( InputStream configInput = searchFile(newConfigFile, basedir)) {
             return new ConfigReader().read(configInput);
         } catch (IOException e) {
             throw new FormatterException("Cannot read config file [" + newConfigFile + "]", e);
@@ -63,10 +63,10 @@ public class FormatterHelp {
      * @throws FormatterException the mojo execution exception
      */
     public static Map<String, String> getOptionsFromPropertiesFile(String newPropertiesFile, File basedir) throws FormatterException {
-        File propertiesFile = searchFile(newPropertiesFile, basedir);
         Properties properties = new Properties();
         try {
-            properties.load(new FileInputStream(propertiesFile));
+            InputStream propertiesInput = searchFile(newPropertiesFile, basedir);
+            properties.load(propertiesInput);
         } catch (IOException e) {
             throw new FormatterException("Cannot read config file [" + newPropertiesFile + "]", e);
         }
@@ -85,7 +85,7 @@ public class FormatterHelp {
      */
     public static void storeFileHashCache(Properties props, File targetDirectory) {
         File cacheFile = new File(targetDirectory, FormatterHelp.CACHE_PROPERTIES_FILENAME);
-        try (OutputStream out = new BufferedOutputStream(new FileOutputStream(cacheFile))) {
+        try ( OutputStream out = new BufferedOutputStream(new FileOutputStream(cacheFile))) {
             props.store(out, null);
         } catch (IOException e) {
             //logger.warn("Cannot store file hash cache properties file", e);
@@ -99,16 +99,16 @@ public class FormatterHelp {
      * @param directory
      * @return
      */
-    public static File searchFile(String name, File directory) {
+    public static InputStream searchFile(String name, File directory) throws FileNotFoundException {
+        System.out.println("1--->" + name + " in " + directory);
         File file = new File(directory, name);
         if (!file.exists()) {
             if (!name.startsWith("/")) {
                 name = "/" + name;
             }
-            URL url = FormatterHelp.class.getResource(name);
-            file = new File(url.getPath());
+            return FormatterHelp.class.getResourceAsStream(name);
         }
-        return file;
+        return new FileInputStream(file);
     }
 
     /**
@@ -130,7 +130,7 @@ public class FormatterHelp {
         if (!cacheFile.exists()) {
             return props;
         }
-        try (BufferedInputStream stream = new BufferedInputStream(new FileInputStream(cacheFile))) {
+        try ( BufferedInputStream stream = new BufferedInputStream(new FileInputStream(cacheFile))) {
             props.load(stream);
         } catch (IOException e) {
             //logger.warn("Cannot load file hash cache properties file", e);
