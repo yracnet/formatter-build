@@ -14,7 +14,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
@@ -98,9 +97,9 @@ public class FormatterHelp {
      * @param name
      * @param directory
      * @return
+     * @throws java.io.FileNotFoundException
      */
     public static InputStream searchFile(String name, File directory) throws FileNotFoundException {
-        System.out.println("1--->" + name + " in " + directory);
         File file = new File(directory, name);
         if (!file.exists()) {
             if (!name.startsWith("/")) {
