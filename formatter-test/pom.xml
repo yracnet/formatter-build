@@ -14,7 +14,7 @@
     </properties>
     <dependencies>
         <dependency>
-            <groupId>com.github.yracnet.format</groupId>
+            <groupId>com.github.yracnet.formatter</groupId>
             <artifactId>formatter-help</artifactId>
             <version>0.2.0</version>
         </dependency>
