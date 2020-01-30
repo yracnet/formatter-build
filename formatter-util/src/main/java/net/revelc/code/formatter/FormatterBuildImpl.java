@@ -13,16 +13,11 @@
  */
 package net.revelc.code.formatter;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
+import dev.yracnet.formatter.FormatterBuild;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -30,17 +25,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
-import org.apache.maven.plugin.AbstractMojo;
-import org.apache.maven.plugin.MojoExecutionException;
-import org.apache.maven.plugin.MojoFailureException;
-import org.apache.maven.plugin.logging.Log;
-import org.apache.maven.plugins.annotations.Component;
-import org.apache.maven.plugins.annotations.LifecyclePhase;
-import org.apache.maven.plugins.annotations.Mojo;
-import org.apache.maven.plugins.annotations.Parameter;
-import org.codehaus.plexus.resource.ResourceManager;
-import org.codehaus.plexus.resource.loader.FileResourceLoader;
-import org.codehaus.plexus.resource.loader.ResourceNotFoundException;
 import org.codehaus.plexus.util.DirectoryScanner;
 import org.codehaus.plexus.util.ReaderFactory;
 import org.codehaus.plexus.util.StringUtils;
@@ -49,18 +33,19 @@ import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.formatter.CodeFormatter;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.text.edits.MalformedTreeException;
-import org.xml.sax.SAXException;
 
 import com.google.common.hash.Hashing;
+import dev.yracnet.formatter.FormatterHelp;
+import lombok.Getter;
+import lombok.Setter;
 
 import net.revelc.code.formatter.css.CssFormatter;
 import net.revelc.code.formatter.html.HTMLFormatter;
 import net.revelc.code.formatter.java.JavaFormatter;
 import net.revelc.code.formatter.javascript.JavascriptFormatter;
 import net.revelc.code.formatter.json.JsonFormatter;
-import net.revelc.code.formatter.model.ConfigReadException;
-import net.revelc.code.formatter.model.ConfigReader;
 import net.revelc.code.formatter.xml.XMLFormatter;
+import dev.yracnet.formatter.FormatterLog;
 
 /**
  * A Maven plugin mojo to format Java source code using the Eclipse code formatter.
@@ -73,47 +58,24 @@ import net.revelc.code.formatter.xml.XMLFormatter;
  * @author Matt Blanchette
  * @author marvin.froeder
  */
-@Mojo(name = "format", defaultPhase = LifecyclePhase.PROCESS_SOURCES, requiresProject = true, threadSafe = true)
-public class FormatterMojo extends AbstractMojo implements ConfigurationSource {
+@Getter
+@Setter
+public class FormatterBuildImpl implements ConfigurationSource, FormatterBuild {
 
     private static final String FILE_S = " file(s)";
 
-    /** The Constant CACHE_PROPERTIES_FILENAME. */
-    private static final String CACHE_PROPERTIES_FILENAME = "formatter-maven-cache.properties";
-
-    /** The Constant DEFAULT_INCLUDES. */
-    private static final String[] DEFAULT_INCLUDES = new String[] { "**/*.java", "**/*.js", "**/*.html", "**/*.xml",
-            "**/*.json", "**/*.css" };
-
-    /**
-     * ResourceManager for retrieving the configFile resource.
-     */
-    @Component(role = ResourceManager.class)
-    private ResourceManager resourceManager;
-
-    /**
-     * Project's source directory as specified in the POM.
-     */
-    @Parameter(defaultValue = "${project.build.sourceDirectory}", property = "sourceDirectory", required = true)
-    private File sourceDirectory;
-
-    /**
-     * Project's test source directory as specified in the POM.
-     */
-    @Parameter(defaultValue = "${project.build.testSourceDirectory}", property = "testSourceDirectory", required = true)
-    private File testSourceDirectory;
+    
+    private FormatterLog log;
 
     /**
      * Project's target directory as specified in the POM.
      */
-    @Parameter(defaultValue = "${project.build.directory}", readonly = true, required = true)
-    private File targetDirectory;
+    private File targetDirectory = new File("target");
 
     /**
      * Project's base directory.
      */
-    @Parameter(defaultValue = ".", property = "project.basedir", readonly = true, required = true)
-    private File basedir;
+    private File basedir = new File("");
 
     /**
      * Location of the Java source files to format. Defaults to source main and test directories if not set. Deprecated
@@ -121,7 +83,6 @@ public class FormatterMojo extends AbstractMojo implements ConfigurationSource {
      * 
      * @since 0.4
      */
-    @Parameter
     private File[] directories;
 
     /**
@@ -130,7 +91,6 @@ public class FormatterMojo extends AbstractMojo implements ConfigurationSource {
      * 
      * @since 0.3
      */
-    @Parameter(property = "formatter.includes")
     private String[] includes;
 
     /**
@@ -139,26 +99,22 @@ public class FormatterMojo extends AbstractMojo implements ConfigurationSource {
      * 
      * @since 0.3
      */
-    @Parameter
     private String[] excludes;
 
     /**
      * Java compiler source version.
      */
-    @Parameter(defaultValue = "1.8", property = "maven.compiler.source", required = true)
-    private String compilerSource;
+    private String compilerSource = "1.8";
 
     /**
      * Java compiler compliance version.
      */
-    @Parameter(defaultValue = "1.8", property = "maven.compiler.source", required = true)
-    private String compilerCompliance;
+    private String compilerCompliance = "1.8";
 
     /**
      * Java compiler target version.
      */
-    @Parameter(defaultValue = "1.8", property = "maven.compiler.target", required = true)
-    private String compilerTargetPlatform;
+    private String compilerTargetPlatform = "1.8";
 
     /**
      * The file encoding used to read and write source files. When not specified and sourceEncoding also not set,
@@ -166,7 +122,6 @@ public class FormatterMojo extends AbstractMojo implements ConfigurationSource {
      * 
      * @since 0.3
      */
-    @Parameter(property = "project.build.sourceEncoding", required = true)
     private String encoding;
 
     /**
@@ -179,96 +134,81 @@ public class FormatterMojo extends AbstractMojo implements ConfigurationSource {
      * <li><b>"CR"</b> - Use early Mac style line endings</li>
      * </ul>
      * 
-     * @since 0.2.0
      */
-    @Parameter(defaultValue = "AUTO", property = "lineending", required = true)
-    private LineEnding lineEnding;
+    private LineEnding lineEnding = LineEnding.AUTO;
 
     /**
      * File or classpath location of an Eclipse code formatter configuration xml file to use in formatting.
      */
-    @Parameter(defaultValue = "formatter-maven-plugin/eclipse/java.xml", property = "configfile", required = true)
-    private String configFile;
+    private String configJavaFile = "formatter-config/eclipse/java.xml";
 
     /**
      * File or classpath location of an Eclipse code formatter configuration xml file to use in formatting.
      */
-    @Parameter(defaultValue = "formatter-maven-plugin/eclipse/javascript.xml", property = "configjsfile", required = true)
-    private String configJsFile;
+    private String configJsFile = "formatter-config/eclipse/javascript.xml";
 
     /**
      * File or classpath location of a properties file to use in html formatting.
      */
-    @Parameter(defaultValue = "formatter-maven-plugin/jsoup/html.properties", property = "confightmlfile", required = true)
-    private String configHtmlFile;
+    private String configHtmlFile = "formatter-config/jsoup/html.properties";
 
     /**
      * File or classpath location of a properties file to use in xml formatting.
      */
-    @Parameter(defaultValue = "formatter-maven-plugin/eclipse/xml.properties", property = "configxmlfile", required = true)
-    private String configXmlFile;
+    private String configXmlFile = "formatter-config/eclipse/xml.properties";
 
     /**
      * File or classpath location of a properties file to use in json formatting.
      */
-    @Parameter(defaultValue = "formatter-maven-plugin/jackson/json.properties", property = "configjsonfile", required = true)
-    private String configJsonFile;
+    private String configJsonFile = "formatter-config/jackson/json.properties";
 
     /**
      * File or classpath location of a properties file to use in css formatting.
      */
-    @Parameter(defaultValue = "formatter-maven-plugin/ph-css/css.properties", property = "configcssfile", required = true)
-    private String configCssFile;
+    private String configCssFile = "formatter-config/ph-css/css.properties";
 
     /**
      * Whether the java formatting is skipped.
      */
-    @Parameter(defaultValue = "false", property = "formatter.java.skip")
-    private Boolean skipJavaFormatting;
+    private boolean skipJavaFormatting = false;
 
     /**
      * Whether the javascript formatting is skipped.
      */
-    @Parameter(defaultValue = "false", property = "formatter.js.skip")
-    private Boolean skipJsFormatting;
+    private boolean skipJsFormatting = false;
 
     /**
      * Whether the html formatting is skipped.
      */
-    @Parameter(defaultValue = "false", property = "formatter.html.skip")
-    private Boolean skipHtmlFormatting;
+    //@Parameter(defaultValue = "false", property = "formatter.html.skip")
+    private boolean skipHtmlFormatting = false;
 
     /**
      * Whether the xml formatting is skipped.
      */
-    @Parameter(defaultValue = "false", property = "formatter.xml.skip")
-    private Boolean skipXmlFormatting;
+    private boolean skipXmlFormatting = false;
 
     /**
      * Whether the json formatting is skipped.
      */
-    @Parameter(defaultValue = "false", property = "formatter.json.skip")
-    private Boolean skipJsonFormatting;
+    private boolean skipJsonFormatting = false;
 
     /**
      * Whether the css formatting is skipped.
      */
-    @Parameter(defaultValue = "false", property = "formatter.css.skip")
-    private Boolean skipCssFormatting;
+    private boolean skipCssFormatting = false;
 
     /**
      * Whether the formatting is skipped.
      *
      * @since 0.5
      */
-    @Parameter(defaultValue = "false", alias = "skip", property = "formatter.skip")
-    private Boolean skipFormatting;
+    private boolean skipFormatting = false;
 
     /**
      * Use eclipse defaults when set to true for java and javascript.
      */
-    @Parameter(defaultValue = "false", property = "formatter.useEclipseDefaults")
-    private Boolean useEclipseDefaults;
+    private boolean useEclipseDefaults = false;
 
     private JavaFormatter javaFormatter = new JavaFormatter();
 
@@ -285,28 +225,28 @@ public class FormatterMojo extends AbstractMojo implements ConfigurationSource {
     /**
      * Execute.
      *
-     * @throws MojoExecutionException
+     * @throws FormatterException
      *             the mojo execution exception
      * @see org.apache.maven.plugin.AbstractMojo#execute()
      */
     @Override
-    public void execute() throws MojoExecutionException, MojoFailureException {
+    public void execute() throws FormatterException {
         if (this.skipFormatting) {
-            getLog().info("Formatting is skipped");
+            log.info("Formatting is skipped");
             return;
         }
 
-        long startClock = System.currentTimeMillis();
+        ResultCollector result = new ResultCollector();
+        result.start();
 
         if (StringUtils.isEmpty(this.encoding)) {
             this.encoding = ReaderFactory.FILE_ENCODING;
-            getLog().warn("File encoding has not been set, using platform encoding (" + this.encoding
-                    + ") to format source files, i.e. build is platform dependent!");
+            log.warn("File encoding has not been set, using platform encoding (" + this.encoding + ") to format source files, i.e. build is platform dependent!");
         } else {
             if (!Charset.isSupported(this.encoding)) {
-                throw new MojoExecutionException("Encoding '" + this.encoding + "' is not supported");
+                throw new FormatterException("Encoding '" + this.encoding + "' is not supported");
             }
-            getLog().info("Using '" + this.encoding + "' encoding to format source files.");
+            log.info("Using '" + this.encoding + "' encoding to format source files.");
         }
 
         List<File> files = new ArrayList<>();
@@ -316,49 +256,35 @@ public class FormatterMojo extends AbstractMojo implements ConfigurationSource {
                     files.addAll(addCollectionFiles(directory));
                 }
             }
-        } else {
-            // Using defaults of source main and test dirs
-            if (this.sourceDirectory != null && this.sourceDirectory.exists() && this.sourceDirectory.isDirectory()) {
-                files.addAll(addCollectionFiles(this.sourceDirectory));
-            }
-            if (this.testSourceDirectory != null && this.testSourceDirectory.exists()
-                    && this.testSourceDirectory.isDirectory()) {
-                files.addAll(addCollectionFiles(this.testSourceDirectory));
-            }
         }
 
         int numberOfFiles = files.size();
-        Log log = getLog();
+        
         log.info("Number of files to be formatted: " + numberOfFiles);
 
         if (numberOfFiles > 0) {
             createCodeFormatter();
-            ResultCollector rc = new ResultCollector();
-            Properties hashCache = readFileHashCacheFile();
-
+            Properties hashCache = FormatterHelp.readFileHashCacheFile(targetDirectory);
             String basedirPath = getBasedirPath();
             for (int i = 0, n = files.size(); i < n; i++) {
                 File file = files.get(i);
                 if (file.exists()) {
                     if (file.canWrite()) {
-                        formatFile(file, rc, hashCache, basedirPath);
+                        formatFile(file, result, hashCache, basedirPath);
                     } else {
-                        rc.readOnlyCount++;
+                        result.readOnlyCount();
                     }
                 } else {
-                    rc.failCount++;
+                    result.failCount();
                 }
             }
-
-            storeFileHashCache(hashCache);
-
-            long endClock = System.currentTimeMillis();
-
-            log.info("Successfully formatted:          " + rc.successCount + FILE_S);
-            log.info("Fail to format:                  " + rc.failCount + FILE_S);
-            log.info("Skipped:                         " + rc.skippedCount + FILE_S);
-            log.info("Read only skipped:               " + rc.readOnlyCount + FILE_S);
-            log.info("Approximate time taken:          " + ((endClock - startClock) / 1000) + "s");
+            FormatterHelp.storeFileHashCache(hashCache, targetDirectory);
+            result.stop();
+            log.info("Successfully formatted:          " + result.getSuccessCount() + FILE_S);
+            log.info("Fail to format:                  " + result.getFailCount() + FILE_S);
+            log.info("Skipped:                         " + result.getSkippedCount() + FILE_S);
+            log.info("Read only skipped:               " + result.getReadOnlyCount() + FILE_S);
+            log.info("Approximate time taken:          " + result.getTimeClock() + "s");
         }
     }
 
@@ -372,15 +298,13 @@ public class FormatterMojo extends AbstractMojo implements ConfigurationSource {
         if (this.includes != null && this.includes.length > 0) {
             ds.setIncludes(this.includes);
         } else {
-            ds.setIncludes(DEFAULT_INCLUDES);
+            ds.setIncludes(FormatterHelp.DEFAULT_INCLUDES);
         }
-
         ds.setExcludes(this.excludes);
         ds.addDefaultExcludes();
         ds.setCaseSensitive(false);
         ds.setFollowSymlinks(false);
         ds.scan();
-
         List<File> foundFiles = new ArrayList<>();
         for (String filename : ds.getIncludedFiles()) {
             foundFiles.add(new File(newBasedir, filename));
@@ -397,53 +321,9 @@ public class FormatterMojo extends AbstractMojo implements ConfigurationSource {
         try {
             return this.basedir.getCanonicalPath();
         } catch (IOException e) {
-            getLog().debug("", e);
+            log.debug("", e);
             return "";
         }
-    }
-
-    /**
-     * Store file hash cache.
-     *
-     * @param props
-     *            the props
-     */
-    private void storeFileHashCache(Properties props) {
-        File cacheFile = new File(this.targetDirectory, CACHE_PROPERTIES_FILENAME);
-        try (OutputStream out = new BufferedOutputStream(new FileOutputStream(cacheFile))) {
-            props.store(out, null);
-        } catch (IOException e) {
-            getLog().warn("Cannot store file hash cache properties file", e);
-        }
-    }
-
-    /**
-     * Read file hash cache file.
-     *
-     * @return the properties
-     */
-    private Properties readFileHashCacheFile() {
-        Properties props = new Properties();
-        Log log = getLog();
-        if (!this.targetDirectory.exists()) {
-            this.targetDirectory.mkdirs();
-        } else if (!this.targetDirectory.isDirectory()) {
-            log.warn("Something strange here as the '" + this.targetDirectory.getPath()
-                    + "' supposedly target directory is not a directory.");
-            return props;
-        }
-
-        File cacheFile = new File(this.targetDirectory, CACHE_PROPERTIES_FILENAME);
-        if (!cacheFile.exists()) {
-            return props;
-        }
-
-        try (BufferedInputStream stream = new BufferedInputStream(new FileInputStream(cacheFile))) {
-            props.load(stream);
-        } catch (IOException e) {
-            log.warn("Cannot load file hash cache properties file", e);
-        }
-        return props;
     }
 
     /**
@@ -459,12 +339,12 @@ public class FormatterMojo extends AbstractMojo implements ConfigurationSource {
      *            the basedir path
      */
     private void formatFile(File file, ResultCollector rc, Properties hashCache, String basedirPath)
-            throws MojoFailureException, MojoExecutionException {
+            throws FormatterException {
         try {
             doFormatFile(file, rc, hashCache, basedirPath, false);
         } catch (IOException | MalformedTreeException | BadLocationException e) {
-            rc.failCount++;
-            getLog().warn(e);
+            rc.failCount();
+            log.warn(e);
         }
     }
 
@@ -484,9 +364,8 @@ public class FormatterMojo extends AbstractMojo implements ConfigurationSource {
      * @throws BadLocationException
      *             the bad location exception
      */
-    protected void doFormatFile(File file, ResultCollector rc, Properties hashCache, String basedirPath, boolean dryRun)
-            throws IOException, BadLocationException, MojoFailureException, MojoExecutionException {
-        Log log = getLog();
+    private void doFormatFile(File file, ResultCollector rc, Properties hashCache, String basedirPath, boolean dryRun)
+            throws IOException, BadLocationException {
         log.debug("Processing file: " + file);
         String code = readFileAsString(file);
         String originalHash = sha512hash(code);
@@ -495,7 +374,7 @@ public class FormatterMojo extends AbstractMojo implements ConfigurationSource {
         String path = canonicalPath.substring(basedirPath.length());
         String cachedHash = hashCache.getProperty(path);
         if (cachedHash != null && cachedHash.equals(originalHash)) {
-            rc.skippedCount++;
+            rc.skippedCount();
             log.debug("File is already formatted.");
             return;
         }
@@ -503,42 +382,42 @@ public class FormatterMojo extends AbstractMojo implements ConfigurationSource {
         Result result;
         if (file.getName().endsWith(".java") && javaFormatter.isInitialized()) {
             if (skipJavaFormatting) {
-                getLog().info("Java formatting is skipped");
+                log.info("Java formatting is skipped");
                 result = Result.SKIPPED;
             } else {
                 result = this.javaFormatter.formatFile(file, this.lineEnding, dryRun);
             }
         } else if (file.getName().endsWith(".js") && jsFormatter.isInitialized()) {
             if (skipJsFormatting) {
-                getLog().info("Javascript formatting is skipped");
+                log.info("Javascript formatting is skipped");
                 result = Result.SKIPPED;
             } else {
                 result = this.jsFormatter.formatFile(file, this.lineEnding, dryRun);
             }
         } else if (file.getName().endsWith(".html") && htmlFormatter.isInitialized()) {
             if (skipHtmlFormatting) {
-                getLog().info("Html formatting is skipped");
+                log.info("Html formatting is skipped");
                 result = Result.SKIPPED;
             } else {
                 result = this.htmlFormatter.formatFile(file, this.lineEnding, dryRun);
             }
         } else if (file.getName().endsWith(".xml") && xmlFormatter.isInitialized()) {
             if (skipXmlFormatting) {
-                getLog().info("Xml formatting is skipped");
+                log.info("Xml formatting is skipped");
                 result = Result.SKIPPED;
             } else {
                 result = this.xmlFormatter.formatFile(file, this.lineEnding, dryRun);
             }
         } else if (file.getName().endsWith(".json") && jsonFormatter.isInitialized()) {
             if (skipJsonFormatting) {
-                getLog().info("json formatting is skipped");
+                log.info("json formatting is skipped");
                 result = Result.SKIPPED;
             } else {
                 result = this.jsonFormatter.formatFile(file, this.lineEnding, dryRun);
             }
         } else if (file.getName().endsWith(".css") && cssFormatter.isInitialized()) {
             if (skipCssFormatting) {
-                getLog().info("css formatting is skipped");
+                log.info("css formatting is skipped");
                 result = Result.SKIPPED;
             } else {
                 result = this.cssFormatter.formatFile(file, this.lineEnding, dryRun);
@@ -549,13 +428,13 @@ public class FormatterMojo extends AbstractMojo implements ConfigurationSource {
 
         switch (result) {
         case SKIPPED:
-            rc.skippedCount++;
+            rc.skippedCount();
             return;
         case SUCCESS:
-            rc.successCount++;
+            rc.successCount();
             break;
         case FAIL:
-            rc.failCount++;
+            rc.failCount();
             return;
         default:
             break;
@@ -566,7 +445,7 @@ public class FormatterMojo extends AbstractMojo implements ConfigurationSource {
         hashCache.setProperty(path, formattedHash);
 
         if (originalHash.equals(formattedHash)) {
-            rc.skippedCount++;
+            rc.skippedCount();
             log.debug("Equal hash code. Not writing result to file.");
             return;
         }
@@ -582,7 +461,7 @@ public class FormatterMojo extends AbstractMojo implements ConfigurationSource {
      * @return the string
      */
     private String sha512hash(String str) {
-        return Hashing.sha512().hashBytes(str.getBytes(getEncoding())).toString();
+        return Hashing.sha512().hashBytes(str.getBytes(getEncodingAsCharset())).toString();
     }
 
     /**
@@ -631,11 +510,11 @@ public class FormatterMojo extends AbstractMojo implements ConfigurationSource {
     /**
      * Create a {@link CodeFormatter} instance to be used by this mojo.
      *
-     * @throws MojoExecutionException
+     * @throws FormatterException
      *             the mojo execution exception
      */
-    private void createCodeFormatter() throws MojoExecutionException {
-        Map<String, String> javaFormattingOptions = getFormattingOptions(this.configFile);
+    private void createCodeFormatter() throws FormatterException {
+        Map<String, String> javaFormattingOptions = getFormattingOptions(this.configJavaFile);
         if (javaFormattingOptions != null) {
             this.javaFormatter.init(javaFormattingOptions, this);
         }
@@ -644,25 +523,25 @@ public class FormatterMojo extends AbstractMojo implements ConfigurationSource {
             this.jsFormatter.init(jsFormattingOptions, this);
         }
         if (configHtmlFile != null) {
-            this.htmlFormatter.init(getOptionsFromPropertiesFile(configHtmlFile), this);
+            this.htmlFormatter.init(FormatterHelp.getOptionsFromPropertiesFile(configHtmlFile, basedir), this);
         }
         if (configXmlFile != null) {
-            Map<String, String> xmlFormattingOptions = getOptionsFromPropertiesFile(configXmlFile);
+            Map<String, String> xmlFormattingOptions = FormatterHelp.getOptionsFromPropertiesFile(configXmlFile, basedir);
             xmlFormattingOptions.put("lineending", this.lineEnding.getChars());
             this.xmlFormatter.init(xmlFormattingOptions, this);
         }
         if (configJsonFile != null) {
-            Map<String, String> jsonFormattingOptions = getOptionsFromPropertiesFile(configJsonFile);
+            Map<String, String> jsonFormattingOptions = FormatterHelp.getOptionsFromPropertiesFile(configJsonFile, basedir);
             jsonFormattingOptions.put("lineending", this.lineEnding.getChars());
             this.jsonFormatter.init(jsonFormattingOptions, this);
         }
         if (configCssFile != null) {
-            this.cssFormatter.init(getOptionsFromPropertiesFile(configCssFile), this);
+            this.cssFormatter.init(FormatterHelp.getOptionsFromPropertiesFile(configCssFile, basedir), this);
         }
         // stop the process if not config files where found
         if (javaFormattingOptions == null && jsFormattingOptions == null && configHtmlFile == null
                 && configXmlFile == null && configCssFile == null) {
-            throw new MojoExecutionException(
+            throw new FormatterException(
                     "You must provide a Java, Javascript, HTML, XML, JSON, or CSS configuration file.");
         }
     }
@@ -671,101 +550,19 @@ public class FormatterMojo extends AbstractMojo implements ConfigurationSource {
      * Return the options to be passed when creating {@link CodeFormatter} instance.
      *
      * @return the formatting options or null if not config file found
-     * @throws MojoExecutionException
+     * @throws FormatterException
      *             the mojo execution exception
      */
-    private Map<String, String> getFormattingOptions(String newConfigFile) throws MojoExecutionException {
+    private Map<String, String> getFormattingOptions(String newConfigFile) throws FormatterException {
         if (this.useEclipseDefaults) {
-            getLog().info("Using Ecipse Defaults");
-            // Use defaults only for formatting
+            log.info("Using Ecipse Defaults");
             Map<String, String> options = new HashMap<>();
             options.put(JavaCore.COMPILER_SOURCE, this.compilerSource);
             options.put(JavaCore.COMPILER_COMPLIANCE, this.compilerCompliance);
             options.put(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, this.compilerTargetPlatform);
             return options;
         }
-
-        return getOptionsFromConfigFile(newConfigFile);
-    }
-
-    /**
-     * Read config file and return the config as {@link Map}.
-     *
-     * @return the options from config file
-     * @throws MojoExecutionException
-     *             the mojo execution exception
-     */
-    private Map<String, String> getOptionsFromConfigFile(String newConfigFile) throws MojoExecutionException {
-
-        this.getLog().debug("Using search path at: " + this.basedir.getAbsolutePath());
-        this.resourceManager.addSearchPath(FileResourceLoader.ID, this.basedir.getAbsolutePath());
-
-        try (InputStream configInput = this.resourceManager.getResourceAsInputStream(newConfigFile)) {
-            return new ConfigReader().read(configInput);
-        } catch (ResourceNotFoundException e) {
-            throw new MojoExecutionException("Cannot find config file [" + newConfigFile + "]");
-        } catch (IOException e) {
-            throw new MojoExecutionException("Cannot read config file [" + newConfigFile + "]", e);
-        } catch (SAXException e) {
-            throw new MojoExecutionException("Cannot parse config file [" + newConfigFile + "]", e);
-        } catch (ConfigReadException e) {
-            throw new MojoExecutionException(e.getMessage(), e);
-        }
-    }
-
-    /**
-     * Read properties file and return the properties as {@link Map}.
-     *
-     * @return the options from properties file or null if not properties file found
-     * @throws MojoExecutionException
-     *             the mojo execution exception
-     */
-    private Map<String, String> getOptionsFromPropertiesFile(String newPropertiesFile) throws MojoExecutionException {
-
-        this.getLog().debug("Using search path at: " + this.basedir.getAbsolutePath());
-        this.resourceManager.addSearchPath(FileResourceLoader.ID, this.basedir.getAbsolutePath());
-
-        Properties properties = new Properties();
-        try {
-            properties.load(this.resourceManager.getResourceAsInputStream(newPropertiesFile));
-        } catch (ResourceNotFoundException e) {
-            getLog().debug("Property file [" + newPropertiesFile + "] cannot be found", e);
-            return new HashMap<>();
-        } catch (IOException e) {
-            throw new MojoExecutionException("Cannot read config file [" + newPropertiesFile + "]", e);
-        }
-
-        final Map<String, String> map = new HashMap<>();
-        for (final String name : properties.stringPropertyNames()) {
-            map.put(name, properties.getProperty(name));
-        }
-        return map;
-    }
-
-    class ResultCollector {
-
-        int successCount;
-
-        int failCount;
-
-        int skippedCount;
-
-        int readOnlyCount;
-    }
-
-    @Override
-    public String getCompilerSources() {
-        return this.compilerSource;
-    }
-
-    @Override
-    public String getCompilerCompliance() {
-        return this.compilerCompliance;
-    }
-
-    @Override
-    public String getCompilerCodegenTargetPlatform() {
-        return this.compilerTargetPlatform;
+        return FormatterHelp.getOptionsFromConfigFile(newConfigFile, basedir);
     }
 
     @Override
@@ -774,7 +571,12 @@ public class FormatterMojo extends AbstractMojo implements ConfigurationSource {
     }
 
     @Override
-    public Charset getEncoding() {
+    public Charset getEncodingAsCharset() {
         return Charset.forName(this.encoding);
+    }
+
+    @Override
+    public FormatterLog getLog() {
+        return log;
     }
 }

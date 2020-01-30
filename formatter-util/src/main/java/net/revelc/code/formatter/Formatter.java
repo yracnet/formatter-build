@@ -21,8 +21,37 @@ import java.util.Map;
  */
 public interface Formatter {
 
+//    /**
+//     * Get File Configuration
+//     *
+//     * @return
+//     */
+//    public File getFileConfig();
+//
+//    /**
+//     * Set File Configuration
+//     *
+//     * @param fileConfig
+//     */
+//    public void setFileConfig(File fileConfig);
+//
+//    /**
+//     * Get Skip Format Code
+//     *
+//     * @return
+//     */
+//    public boolean getSkip();
+//
+//    /**
+//     * Set Skip Format Code
+//     *
+//     * @param skip
+//     */
+//    public void setSkip(boolean skip);
+
     /**
-     * Initialize the {@link org.eclipse.jdt.core.formatter.CodeFormatter} instance to be used by this component.
+     * Initialize the {@link org.eclipse.jdt.core.formatter.CodeFormatter}
+     * instance to be used by this component.
      */
     abstract void init(Map<String, String> options, ConfigurationSource cfg);
 

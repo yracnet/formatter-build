@@ -13,26 +13,24 @@
  */
 package net.revelc.code.formatter;
 
-import java.io.File;
 import java.nio.charset.Charset;
-
-import org.apache.maven.plugin.logging.Log;
+import dev.yracnet.formatter.FormatterLog;
 
 /**
  * @author marvin.froeder
  */
 public interface ConfigurationSource {
 
-    Log getLog();
-
-    String getCompilerSources();
-
-    String getCompilerCompliance();
-
-    String getCompilerCodegenTargetPlatform();
-
-    File getTargetDirectory();
-
-    Charset getEncoding();
+    FormatterLog getLog();
+//
+//    String getCompilerSources();
+//
+//    String getCompilerCompliance();
+//
+//    String getCompilerCodegenTargetPlatform();
+//
+//    File getTargetDirectory();
+//
+    Charset getEncodingAsCharset();
 
 }

@@ -19,25 +19,24 @@ import java.nio.charset.Charset;
 import java.util.Map;
 import java.util.Objects;
 
-import org.apache.maven.plugin.logging.Log;
 import org.codehaus.plexus.util.FileUtils;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.text.edits.MalformedTreeException;
+import dev.yracnet.formatter.FormatterLog;
 
 /**
  * @author marvin.froeder
  */
 public abstract class AbstractCacheableFormatter {
 
-    protected Log log;
-
+    protected FormatterLog log;
     protected Charset encoding;
 
     protected abstract void init(Map<String, String> options, ConfigurationSource cfg);
 
     protected void initCfg(ConfigurationSource cfg) {
         this.log = cfg.getLog();
-        this.encoding = cfg.getEncoding();
+        this.encoding = cfg.getEncodingAsCharset();
     }
 
     public Result formatFile(File file, LineEnding ending, boolean dryRun) {
