@@ -11,20 +11,34 @@ Format Source Code JAVA, CSS, JS, XML, HTML with Eclipse Platform
 
 You can use this api in your application in runtime without include the maven-plugin dependency
 
-This is simple:
+Declare dependency:
 
-    FormatterBuild build = FormatterBuild.create();
-    
-    //basedir is a root directory when exist a source code as JAVA, JS, HTML, CSS
-    build.setBasedir(basedir); 
-    
-    // this is necesary for declare all directory that format
-    // remember that directory1, directory2 is a subdirectory of basedir
-    build.setDirectories(directory1, directory2); 
-    
-    //This execute the format code
-    build.execute();  
+     <dependency>
+         <groupId>com.github.yracnet.formatter</groupId>
+         <artifactId>formatter-help</artifactId>
+         <version>0.2.0</version>
+     </dependency>
+
+In your code:
+
+    public static void main(String[] args) throws FormatterException, IOException {
+      File basedir = new File("/work/project-x");
+      File dir1 = new File(basedir, "/src/main");
+      File dir2 = new File(basedir, "/src/test");
+      
+      FormatterBuild build = FormatterBuild.create();
+
+      //basedir is a root directory when exist a source code as JAVA, JS, HTML, CSS
+      build.setBasedir(basedir); 
+
+      // this is necesary for declare all directory that format
+      // remember that dir1, dir2 are subdirectory of basedir
+      build.setDirectories(dir1, dir2); 
+
+      //This execute the format code
+      build.execute();  
+    }
 
 
-The FormatterBuild Class has many method for configure the execution, please see the document of project https://code.revelc.net/formatter-maven-plugin
+The FormatterBuild Class has many method for configure the execution, please see the project https://code.revelc.net/formatter-maven-plugin
 
