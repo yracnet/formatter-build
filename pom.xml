@@ -10,7 +10,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
     <modules>
+        <module>formatter-build</module>
         <module>formatter-test</module>
-        <module>formatter-help</module>
     </modules>
 </project>

@@ -2,10 +2,10 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.github.yracnet.formatter</groupId>
-    <artifactId>formatter-help</artifactId>
+    <artifactId>formatter-build</artifactId>
     <version>0.2.0</version>
     <packaging>jar</packaging>
-    <name>formatter-help</name>
+    <name>formatter-build</name>
     <description>Forrmater Utility for JAVA, JS, XML, CSS, HTML</description>
     <properties>
         <maven.compiler.source>11</maven.compiler.source>
