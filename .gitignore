@@ -1,6 +1,8 @@
 /target/
 /formatter-test/target/
-/formatter-util/target/
-/demo/*
-/formatter-help/target/
 /formatter-build/target/
+/demo/**
+/demo/Demo.java
+/demo/demo.css
+/demo/demo.js
+/demo/demo.xml

@@ -25,7 +25,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
-import org.codehaus.plexus.util.DirectoryScanner;
 import org.codehaus.plexus.util.ReaderFactory;
 import org.codehaus.plexus.util.StringUtils;
 import org.codehaus.plexus.util.WriterFactory;

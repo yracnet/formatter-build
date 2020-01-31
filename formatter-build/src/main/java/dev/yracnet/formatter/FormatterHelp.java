@@ -146,9 +146,9 @@ public class FormatterHelp {
      * @param newBasedir
      * @param includes
      * @param excludes
-     * @return 
+     * @return
      */
-    public static List<File> addCollectionFiles(File newBasedir, String []includes, String []excludes) {
+    public static List<File> addCollectionFiles(File newBasedir, String[] includes, String[] excludes) {
         final DirectoryScanner ds = new DirectoryScanner();
         ds.setBasedir(newBasedir);
         if (includes != null && includes.length > 0) {

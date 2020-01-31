@@ -21,7 +21,7 @@ public class MainRun {
         File basedir = new File("../demo");
         System.out.println("--->" + basedir.getCanonicalPath());
         build.setBasedir(basedir);
-        build.setDirectories(basedir);
+        //build.setDirectories(basedir);
         //build.setDirectories(new File(new File(""), "../demo"));
         build.execute();
     }
