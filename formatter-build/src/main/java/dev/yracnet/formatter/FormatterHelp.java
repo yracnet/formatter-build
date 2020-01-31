@@ -19,7 +19,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
-import net.revelc.code.formatter.FormatterException;
 import net.revelc.code.formatter.model.ConfigReadException;
 import net.revelc.code.formatter.model.ConfigReader;
 import org.codehaus.plexus.util.DirectoryScanner;

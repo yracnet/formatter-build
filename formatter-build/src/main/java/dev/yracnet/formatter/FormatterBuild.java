@@ -8,7 +8,6 @@ package dev.yracnet.formatter;
 import java.io.File;
 import java.nio.charset.Charset;
 import net.revelc.code.formatter.FormatterBuildImpl;
-import net.revelc.code.formatter.FormatterException;
 import net.revelc.code.formatter.LineEnding;
 
 /**

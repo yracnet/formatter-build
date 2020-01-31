@@ -13,6 +13,7 @@
  */
 package net.revelc.code.formatter;
 
+import dev.yracnet.formatter.FormatterException;
 import dev.yracnet.formatter.FormatterBuild;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
