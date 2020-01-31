@@ -48,12 +48,14 @@ import net.revelc.code.formatter.xml.XMLFormatter;
 import dev.yracnet.formatter.FormatterLog;
 
 /**
- * A Maven plugin mojo to format Java source code using the Eclipse code formatter.
- * 
- * Mojo parameters allow customizing formatting by specifying the config XML file, line endings, compiler version, and
- * source code locations. Reformatting source files is avoided using an sha512 hash of the content, comparing to the
+ * A Maven plugin mojo to format Java source code using the Eclipse code
+ * formatter.
+ *
+ * Mojo parameters allow customizing formatting by specifying the config XML
+ * file, line endings, compiler version, and source code locations. Reformatting
+ * source files is avoided using an sha512 hash of the content, comparing to the
  * original hash to the hash after formatting and a cached hash.
- * 
+ *
  * @author jecki
  * @author Matt Blanchette
  * @author marvin.froeder
@@ -64,7 +66,6 @@ public class FormatterBuildImpl implements ConfigurationSource, FormatterBuild {
 
     private static final String FILE_S = " file(s)";
 
-    
     private FormatterLog log;
 
     /**
@@ -78,25 +79,29 @@ public class FormatterBuildImpl implements ConfigurationSource, FormatterBuild {
     private File basedir = new File("");
 
     /**
-     * Location of the Java source files to format. Defaults to source main and test directories if not set. Deprecated
-     * in version 0.3. Reintroduced in 0.4.
-     * 
+     * Location of the Java source files to format. Defaults to source main and
+     * test directories if not set. Deprecated in version 0.3. Reintroduced in
+     * 0.4.
+     *
      * @since 0.4
      */
     private File[] directories;
 
     /**
-     * List of fileset patterns for Java source locations to include in formatting. Patterns are relative to the project
-     * source and test source directories. When not specified, the default include is <code>**&#47;*.java</code>
-     * 
+     * List of fileset patterns for Java source locations to include in
+     * formatting. Patterns are relative to the project source and test source
+     * directories. When not specified, the default include is
+     * <code>**&#47;*.java</code>
+     *
      * @since 0.3
      */
     private String[] includes;
 
     /**
-     * List of fileset patterns for Java source locations to exclude from formatting. Patterns are relative to the
-     * project source and test source directories. When not specified, there is no default exclude.
-     * 
+     * List of fileset patterns for Java source locations to exclude from
+     * formatting. Patterns are relative to the project source and test source
+     * directories. When not specified, there is no default exclude.
+     *
      * @since 0.3
      */
     private String[] excludes;
@@ -117,9 +122,9 @@ public class FormatterBuildImpl implements ConfigurationSource, FormatterBuild {
     private String compilerTargetPlatform = "1.8";
 
     /**
-     * The file encoding used to read and write source files. When not specified and sourceEncoding also not set,
-     * default is platform file encoding.
-     * 
+     * The file encoding used to read and write source files. When not specified
+     * and sourceEncoding also not set, default is platform file encoding.
+     *
      * @since 0.3
      */
     private String encoding;
@@ -128,27 +133,31 @@ public class FormatterBuildImpl implements ConfigurationSource, FormatterBuild {
      * Sets the line-ending of files after formatting. Valid values are:
      * <ul>
      * <li><b>"AUTO"</b> - Use line endings of current system</li>
-     * <li><b>"KEEP"</b> - Preserve line endings of files, default to AUTO if ambiguous</li>
+     * <li><b>"KEEP"</b> - Preserve line endings of files, default to AUTO if
+     * ambiguous</li>
      * <li><b>"LF"</b> - Use Unix and Mac style line endings</li>
      * <li><b>"CRLF"</b> - Use DOS and Windows style line endings</li>
      * <li><b>"CR"</b> - Use early Mac style line endings</li>
      * </ul>
-     * 
+     *
      */
     private LineEnding lineEnding = LineEnding.AUTO;
 
     /**
-     * File or classpath location of an Eclipse code formatter configuration xml file to use in formatting.
+     * File or classpath location of an Eclipse code formatter configuration xml
+     * file to use in formatting.
      */
     private String configJavaFile = "formatter-config/eclipse/java.xml";
 
     /**
-     * File or classpath location of an Eclipse code formatter configuration xml file to use in formatting.
+     * File or classpath location of an Eclipse code formatter configuration xml
+     * file to use in formatting.
      */
     private String configJsFile = "formatter-config/eclipse/javascript.xml";
 
     /**
-     * File or classpath location of a properties file to use in html formatting.
+     * File or classpath location of a properties file to use in html
+     * formatting.
      */
     private String configHtmlFile = "formatter-config/jsoup/html.properties";
 
@@ -158,7 +167,8 @@ public class FormatterBuildImpl implements ConfigurationSource, FormatterBuild {
     private String configXmlFile = "formatter-config/eclipse/xml.properties";
 
     /**
-     * File or classpath location of a properties file to use in json formatting.
+     * File or classpath location of a properties file to use in json
+     * formatting.
      */
     private String configJsonFile = "formatter-config/jackson/json.properties";
 
@@ -225,8 +235,7 @@ public class FormatterBuildImpl implements ConfigurationSource, FormatterBuild {
     /**
      * Execute.
      *
-     * @throws FormatterException
-     *             the mojo execution exception
+     * @throws FormatterException the mojo execution exception
      * @see org.apache.maven.plugin.AbstractMojo#execute()
      */
     @Override
@@ -250,24 +259,26 @@ public class FormatterBuildImpl implements ConfigurationSource, FormatterBuild {
         }
 
         List<File> files = new ArrayList<>();
-        if (this.directories != null) {
-            for (File directory : this.directories) {
-                if (directory.exists() && directory.isDirectory()) {
-                    files.addAll(addCollectionFiles(directory));
-                }
+
+        if (directories == null) {
+            directories = new File[]{basedir};
+        }
+
+        for (File directory : this.directories) {
+            if (directory.exists() && directory.isDirectory()) {
+                files.addAll(FormatterHelp.addCollectionFiles(directory, includes, excludes));
             }
         }
 
         int numberOfFiles = files.size();
-        
+
         log.info("Number of files to be formatted: " + numberOfFiles);
 
         if (numberOfFiles > 0) {
             createCodeFormatter();
             Properties hashCache = FormatterHelp.readFileHashCacheFile(targetDirectory);
-            String basedirPath = getBasedirPath();
-            for (int i = 0, n = files.size(); i < n; i++) {
-                File file = files.get(i);
+            String basedirPath = FormatterHelp.getBasedirPath(basedir);
+            for (File file : files) {
                 if (file.exists()) {
                     if (file.canWrite()) {
                         formatFile(file, result, hashCache, basedirPath);
@@ -289,54 +300,12 @@ public class FormatterBuildImpl implements ConfigurationSource, FormatterBuild {
     }
 
     /**
-     * Add source files to the files list.
-     *
-     */
-    List<File> addCollectionFiles(File newBasedir) {
-        final DirectoryScanner ds = new DirectoryScanner();
-        ds.setBasedir(newBasedir);
-        if (this.includes != null && this.includes.length > 0) {
-            ds.setIncludes(this.includes);
-        } else {
-            ds.setIncludes(FormatterHelp.DEFAULT_INCLUDES);
-        }
-        ds.setExcludes(this.excludes);
-        ds.addDefaultExcludes();
-        ds.setCaseSensitive(false);
-        ds.setFollowSymlinks(false);
-        ds.scan();
-        List<File> foundFiles = new ArrayList<>();
-        for (String filename : ds.getIncludedFiles()) {
-            foundFiles.add(new File(newBasedir, filename));
-        }
-        return foundFiles;
-    }
-
-    /**
-     * Gets the basedir path.
-     * 
-     * @return the basedir path
-     */
-    private String getBasedirPath() {
-        try {
-            return this.basedir.getCanonicalPath();
-        } catch (IOException e) {
-            log.debug("", e);
-            return "";
-        }
-    }
-
-    /**
      * Format file.
      *
-     * @param file
-     *            the file
-     * @param rc
-     *            the rc
-     * @param hashCache
-     *            the hash cache
-     * @param basedirPath
-     *            the basedir path
+     * @param file the file
+     * @param rc the rc
+     * @param hashCache the hash cache
+     * @param basedirPath the basedir path
      */
     private void formatFile(File file, ResultCollector rc, Properties hashCache, String basedirPath)
             throws FormatterException {
@@ -351,18 +320,12 @@ public class FormatterBuildImpl implements ConfigurationSource, FormatterBuild {
     /**
      * Format individual file.
      *
-     * @param file
-     *            the file
-     * @param rc
-     *            the rc
-     * @param hashCache
-     *            the hash cache
-     * @param basedirPath
-     *            the basedir path
-     * @throws IOException
-     *             Signals that an I/O exception has occurred.
-     * @throws BadLocationException
-     *             the bad location exception
+     * @param file the file
+     * @param rc the rc
+     * @param hashCache the hash cache
+     * @param basedirPath the basedir path
+     * @throws IOException Signals that an I/O exception has occurred.
+     * @throws BadLocationException the bad location exception
      */
     private void doFormatFile(File file, ResultCollector rc, Properties hashCache, String basedirPath, boolean dryRun)
             throws IOException, BadLocationException {
@@ -427,17 +390,17 @@ public class FormatterBuildImpl implements ConfigurationSource, FormatterBuild {
         }
 
         switch (result) {
-        case SKIPPED:
-            rc.skippedCount();
-            return;
-        case SUCCESS:
-            rc.successCount();
-            break;
-        case FAIL:
-            rc.failCount();
-            return;
-        default:
-            break;
+            case SKIPPED:
+                rc.skippedCount();
+                return;
+            case SUCCESS:
+                rc.successCount();
+                break;
+            case FAIL:
+                rc.failCount();
+                return;
+            default:
+                break;
         }
 
         String formattedCode = readFileAsString(file);
@@ -456,8 +419,7 @@ public class FormatterBuildImpl implements ConfigurationSource, FormatterBuild {
     /**
      * sha512hash.
      *
-     * @param str
-     *            the str
+     * @param str the str
      * @return the string
      */
     private String sha512hash(String str) {
@@ -467,15 +429,13 @@ public class FormatterBuildImpl implements ConfigurationSource, FormatterBuild {
     /**
      * Read the given file and return the content as a string.
      *
-     * @param file
-     *            the file
+     * @param file the file
      * @return the string
-     * @throws IOException
-     *             Signals that an I/O exception has occurred.
+     * @throws IOException Signals that an I/O exception has occurred.
      */
     private String readFileAsString(File file) throws java.io.IOException {
         StringBuilder fileData = new StringBuilder(1000);
-        try (BufferedReader reader = new BufferedReader(ReaderFactory.newReader(file, this.encoding))) {
+        try ( BufferedReader reader = new BufferedReader(ReaderFactory.newReader(file, this.encoding))) {
             char[] buf = new char[1024];
             int numRead = 0;
             while ((numRead = reader.read(buf)) != -1) {
@@ -490,19 +450,16 @@ public class FormatterBuildImpl implements ConfigurationSource, FormatterBuild {
     /**
      * Write the given string to a file.
      *
-     * @param str
-     *            the str
-     * @param file
-     *            the file
-     * @throws IOException
-     *             Signals that an I/O exception has occurred.
+     * @param str the str
+     * @param file the file
+     * @throws IOException Signals that an I/O exception has occurred.
      */
     private void writeStringToFile(String str, File file) throws IOException {
         if (!file.exists() && file.isDirectory()) {
             return;
         }
 
-        try (BufferedWriter bw = new BufferedWriter(WriterFactory.newWriter(file, this.encoding))) {
+        try ( BufferedWriter bw = new BufferedWriter(WriterFactory.newWriter(file, this.encoding))) {
             bw.write(str);
         }
     }
@@ -510,8 +467,7 @@ public class FormatterBuildImpl implements ConfigurationSource, FormatterBuild {
     /**
      * Create a {@link CodeFormatter} instance to be used by this mojo.
      *
-     * @throws FormatterException
-     *             the mojo execution exception
+     * @throws FormatterException the mojo execution exception
      */
     private void createCodeFormatter() throws FormatterException {
         Map<String, String> javaFormattingOptions = getFormattingOptions(this.configJavaFile);
@@ -547,11 +503,11 @@ public class FormatterBuildImpl implements ConfigurationSource, FormatterBuild {
     }
 
     /**
-     * Return the options to be passed when creating {@link CodeFormatter} instance.
+     * Return the options to be passed when creating {@link CodeFormatter}
+     * instance.
      *
      * @return the formatting options or null if not config file found
-     * @throws FormatterException
-     *             the mojo execution exception
+     * @throws FormatterException the mojo execution exception
      */
     private Map<String, String> getFormattingOptions(String newConfigFile) throws FormatterException {
         if (this.useEclipseDefaults) {
@@ -578,5 +534,13 @@ public class FormatterBuildImpl implements ConfigurationSource, FormatterBuild {
     @Override
     public FormatterLog getLog() {
         return log;
+    }
+
+    @Override
+    public void setBasedir(File basedir) {
+        this.basedir = basedir;
+        if (directories == null) {
+            directories = new File[]{basedir};
+        }
     }
 }

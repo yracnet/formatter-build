@@ -45,7 +45,7 @@ public interface FormatterBuild {
     public File getTargetDirectory();
 
     /**
-     * Set the Target Directory where generated the resumen and cache properties
+     * Set the Target Directory where generated the resume and cache properties
      *
      * @param targetDirectory
      */

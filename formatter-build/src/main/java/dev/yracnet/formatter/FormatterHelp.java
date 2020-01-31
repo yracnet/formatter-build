@@ -14,12 +14,15 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import net.revelc.code.formatter.FormatterException;
 import net.revelc.code.formatter.model.ConfigReadException;
 import net.revelc.code.formatter.model.ConfigReader;
+import org.codehaus.plexus.util.DirectoryScanner;
 import org.xml.sax.SAXException;
 
 /**
@@ -135,5 +138,47 @@ public class FormatterHelp {
             //logger.warn("Cannot load file hash cache properties file", e);
         }
         return props;
+    }
+
+    /**
+     * Add source files to the files list.
+     *
+     * @param newBasedir
+     * @param includes
+     * @param excludes
+     * @return 
+     */
+    public static List<File> addCollectionFiles(File newBasedir, String []includes, String []excludes) {
+        final DirectoryScanner ds = new DirectoryScanner();
+        ds.setBasedir(newBasedir);
+        if (includes != null && includes.length > 0) {
+            ds.setIncludes(includes);
+        } else {
+            ds.setIncludes(FormatterHelp.DEFAULT_INCLUDES);
+        }
+        ds.setExcludes(excludes);
+        ds.addDefaultExcludes();
+        ds.setCaseSensitive(false);
+        ds.setFollowSymlinks(false);
+        ds.scan();
+        List<File> foundFiles = new ArrayList<>();
+        for (String filename : ds.getIncludedFiles()) {
+            foundFiles.add(new File(newBasedir, filename));
+        }
+        return foundFiles;
+    }
+
+    /**
+     * Gets the basedir path.
+     *
+     * @param basedir
+     * @return the basedir path
+     */
+    public static String getBasedirPath(File basedir) {
+        try {
+            return basedir.getCanonicalPath();
+        } catch (IOException e) {
+            return "";
+        }
     }
 }
