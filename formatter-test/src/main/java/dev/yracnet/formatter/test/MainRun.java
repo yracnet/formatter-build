@@ -8,7 +8,7 @@ package dev.yracnet.formatter.test;
 import dev.yracnet.formatter.FormatterBuild;
 import java.io.File;
 import java.io.IOException;
-import net.revelc.code.formatter.FormatterException;
+import dev.yracnet.formatter.FormatterException;
 
 /**
  *

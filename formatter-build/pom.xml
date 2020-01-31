@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.github.yracnet.formatter</groupId>
     <artifactId>formatter-build</artifactId>
-    <version>0.2.3</version>
+    <version>0.2.4</version>
     <packaging>jar</packaging>
     <name>formatter-build</name>
     <description>Forrmater Utility for JAVA, JS, XML, CSS, HTML</description>
