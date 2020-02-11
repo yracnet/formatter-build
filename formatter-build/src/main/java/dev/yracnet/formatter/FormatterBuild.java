@@ -135,17 +135,17 @@ public interface FormatterBuild {
      */
     public void setLineEnding(LineEnding lineEnding);
 
-    public FormatterConfig getJavaFormatter();
+    public FormatterConfig getJavaFormatterConfig();
 
-    public FormatterConfig getCssFormatter();
+    public FormatterConfig getCssFormatterConfig();
 
-    public FormatterConfig getJsFormatter();
+    public FormatterConfig getJsFormatterConfig();
 
-    public FormatterConfig getJsonFormatter();
+    public FormatterConfig getJsonFormatterConfig();
 
-    public FormatterConfig getHtmlFormatter();
+    public FormatterConfig getHtmlFormatterConfig();
 
-    public FormatterConfig getXmlFormatter();
+    public FormatterConfig getXmlFormatterConfig();
 
     public boolean isUseEclipseDefaults();
 

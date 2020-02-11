@@ -23,7 +23,8 @@ public class MainRun {
         build.setIncludes("**/*.xml", "**/*.xhtml");
         //build.setExcludes("**/target/*");
         build.setBasedir(basedir);
-        build.getXmlFormatter().setExtensions(".xml", ".xhtml");
+        build.getXmlFormatterConfig().setExtensions(".xml", ".xhtml");
+        build.getXmlFormatterConfig().setSkip(false);
         //build.setDirectories(basedir);
         //build.setDirectories(new File(new File(""), "../demo"));
         build.execute();

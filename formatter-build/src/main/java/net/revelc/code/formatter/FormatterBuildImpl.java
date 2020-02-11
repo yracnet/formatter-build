@@ -155,25 +155,25 @@ public class FormatterBuildImpl implements ConfigurationSource, FormatterBuild {
      */
     private boolean useEclipseDefaults = false;
 
-    private JavaFormatter javaFormatter = new JavaFormatter();
+    private JavaFormatter javaFormatterConfig = new JavaFormatter();
 
-    private JavascriptFormatter jsFormatter = new JavascriptFormatter( );
+    private JavascriptFormatter jsFormatterConfig = new JavascriptFormatter( );
 
-    private HTMLFormatter htmlFormatter = new HTMLFormatter();
+    private HTMLFormatter htmlFormatterConfig = new HTMLFormatter();
 
-    private XMLFormatter xmlFormatter = new XMLFormatter();
+    private XMLFormatter xmlFormatterConfig = new XMLFormatter();
 
-    private JsonFormatter jsonFormatter = new JsonFormatter();
+    private JsonFormatter jsonFormatterConfig = new JsonFormatter();
 
-    private CssFormatter cssFormatter = new CssFormatter();
+    private CssFormatter cssFormatterConfig = new CssFormatter();
     
     public FormatterBuildImpl(){
-        javaFormatter.setFileConfig("formatter-config/eclipse/java.xml");
-        jsFormatter.setFileConfig("formatter-config/eclipse/javascript.xml");
-        htmlFormatter.setFileConfig("formatter-config/jsoup/html.properties");
-        xmlFormatter.setFileConfig("formatter-config/eclipse/xml.properties");
-        jsonFormatter.setFileConfig("formatter-config/jackson/json.properties");
-        cssFormatter.setFileConfig("formatter-config/ph-css/css.properties");
+        javaFormatterConfig.setFileConfig("formatter-config/eclipse/java.xml");
+        jsFormatterConfig.setFileConfig("formatter-config/eclipse/javascript.xml");
+        htmlFormatterConfig.setFileConfig("formatter-config/jsoup/html.properties");
+        xmlFormatterConfig.setFileConfig("formatter-config/eclipse/xml.properties");
+        jsonFormatterConfig.setFileConfig("formatter-config/jackson/json.properties");
+        cssFormatterConfig.setFileConfig("formatter-config/ph-css/css.properties");
     }
 
     /**
@@ -287,47 +287,47 @@ public class FormatterBuildImpl implements ConfigurationSource, FormatterBuild {
         }
 
         Result result;
-        if (javaFormatter.isSupport(file.getName()) && javaFormatter.isInitialized()) {
-            if (javaFormatter.isSkip()) {
+        if (javaFormatterConfig.isSupport(file.getName()) && javaFormatterConfig.isInitialized()) {
+            if (javaFormatterConfig.isSkip()) {
                 log.info("Java formatting is skipped");
                 result = Result.SKIPPED;
             } else {
-                result = javaFormatter.formatFile(file, lineEnding, dryRun);
+                result = javaFormatterConfig.formatFile(file, lineEnding, dryRun);
             }
-        } else if (jsFormatter.isSupport(file.getName())  && jsFormatter.isInitialized()) {
-            if (jsFormatter.isSkip()) {
+        } else if (jsFormatterConfig.isSupport(file.getName())  && jsFormatterConfig.isInitialized()) {
+            if (jsFormatterConfig.isSkip()) {
                 log.info("Javascript formatting is skipped");
                 result = Result.SKIPPED;
             } else {
-                result = jsFormatter.formatFile(file, lineEnding, dryRun);
+                result = jsFormatterConfig.formatFile(file, lineEnding, dryRun);
             }
-        } else if (htmlFormatter.isSupport(file.getName()) && htmlFormatter.isInitialized()) {
-            if (htmlFormatter.isSkip()) {
+        } else if (htmlFormatterConfig.isSupport(file.getName()) && htmlFormatterConfig.isInitialized()) {
+            if (htmlFormatterConfig.isSkip()) {
                 log.info("Html formatting is skipped");
                 result = Result.SKIPPED;
             } else {
-                result = htmlFormatter.formatFile(file, lineEnding, dryRun);
+                result = htmlFormatterConfig.formatFile(file, lineEnding, dryRun);
             }
-        } else if ( xmlFormatter.isSupport(file.getName())  && xmlFormatter.isInitialized()) {
-            if (xmlFormatter.isSkip()) {
+        } else if ( xmlFormatterConfig.isSupport(file.getName())  && xmlFormatterConfig.isInitialized()) {
+            if (xmlFormatterConfig.isSkip()) {
                 log.info("Xml formatting is skipped");
                 result = Result.SKIPPED;
             } else {
-                result = xmlFormatter.formatFile(file, lineEnding, dryRun);
+                result = xmlFormatterConfig.formatFile(file, lineEnding, dryRun);
             }
-        } else if ( jsonFormatter.isSupport(file.getName())  && jsonFormatter.isInitialized()) {
-            if (jsonFormatter.isSkip()) {
+        } else if ( jsonFormatterConfig.isSupport(file.getName())  && jsonFormatterConfig.isInitialized()) {
+            if (jsonFormatterConfig.isSkip()) {
                 log.info("json formatting is skipped");
                 result = Result.SKIPPED;
             } else {
-                result = jsonFormatter.formatFile(file, lineEnding, dryRun);
+                result = jsonFormatterConfig.formatFile(file, lineEnding, dryRun);
             }
-        } else if (cssFormatter.isSupport(file.getName()) && cssFormatter.isInitialized()) {
-            if (cssFormatter.isSkip()) {
+        } else if (cssFormatterConfig.isSupport(file.getName()) && cssFormatterConfig.isInitialized()) {
+            if (cssFormatterConfig.isSkip()) {
                 log.info("css formatting is skipped");
                 result = Result.SKIPPED;
             } else {
-                result = cssFormatter.formatFile(file, lineEnding, dryRun);
+                result = cssFormatterConfig.formatFile(file, lineEnding, dryRun);
             }
         } else {
             result = Result.SKIPPED;
@@ -414,33 +414,33 @@ public class FormatterBuildImpl implements ConfigurationSource, FormatterBuild {
      * @throws FormatterException the mojo execution exception
      */
     private void createCodeFormatter() throws FormatterException {
-        Map<String, String> javaFormattingOptions = getFormattingOptions(javaFormatter.getFileConfig());
+        Map<String, String> javaFormattingOptions = getFormattingOptions(javaFormatterConfig.getFileConfig());
         if (javaFormattingOptions != null) {
-            javaFormatter.init(javaFormattingOptions, this);
+            javaFormatterConfig.init(javaFormattingOptions, this);
         }
-        Map<String, String> jsFormattingOptions = getFormattingOptions(jsFormatter.getFileConfig());
+        Map<String, String> jsFormattingOptions = getFormattingOptions(jsFormatterConfig.getFileConfig());
         if (jsFormattingOptions != null) {
-            jsFormatter.init(jsFormattingOptions, this);
+            jsFormatterConfig.init(jsFormattingOptions, this);
         }
-        if (htmlFormatter.getFileConfig() != null) {
-            htmlFormatter.init(FormatterHelp.getOptionsFromPropertiesFile(htmlFormatter.getFileConfig(), basedir), this);
+        if (htmlFormatterConfig.getFileConfig() != null) {
+            htmlFormatterConfig.init(FormatterHelp.getOptionsFromPropertiesFile(htmlFormatterConfig.getFileConfig(), basedir), this);
         }
-        if (xmlFormatter.getFileConfig() != null) {
-            Map<String, String> xmlFormattingOptions = FormatterHelp.getOptionsFromPropertiesFile(xmlFormatter.getFileConfig(), basedir);
+        if (xmlFormatterConfig.getFileConfig() != null) {
+            Map<String, String> xmlFormattingOptions = FormatterHelp.getOptionsFromPropertiesFile(xmlFormatterConfig.getFileConfig(), basedir);
             xmlFormattingOptions.put("lineending", lineEnding.getChars());
-            xmlFormatter.init(xmlFormattingOptions, this);
+            xmlFormatterConfig.init(xmlFormattingOptions, this);
         }
-        if (jsonFormatter.getFileConfig() != null) {
-            Map<String, String> jsonFormattingOptions = FormatterHelp.getOptionsFromPropertiesFile(jsonFormatter.getFileConfig(), basedir);
+        if (jsonFormatterConfig.getFileConfig() != null) {
+            Map<String, String> jsonFormattingOptions = FormatterHelp.getOptionsFromPropertiesFile(jsonFormatterConfig.getFileConfig(), basedir);
             jsonFormattingOptions.put("lineending", lineEnding.getChars());
-            jsonFormatter.init(jsonFormattingOptions, this);
+            jsonFormatterConfig.init(jsonFormattingOptions, this);
         }
-        if (cssFormatter.getFileConfig() != null) {
-            cssFormatter.init(FormatterHelp.getOptionsFromPropertiesFile(cssFormatter.getFileConfig(), basedir), this);
+        if (cssFormatterConfig.getFileConfig() != null) {
+            cssFormatterConfig.init(FormatterHelp.getOptionsFromPropertiesFile(cssFormatterConfig.getFileConfig(), basedir), this);
         }
         // stop the process if not config files where found
-        if (javaFormattingOptions == null && jsFormattingOptions == null && htmlFormatter.getFileConfig() == null
-                && xmlFormatter.getFileConfig() == null && cssFormatter.getFileConfig() == null) {
+        if (javaFormattingOptions == null && jsFormattingOptions == null && htmlFormatterConfig.getFileConfig() == null
+                && xmlFormatterConfig.getFileConfig() == null && cssFormatterConfig.getFileConfig() == null) {
             throw new FormatterException(
                     "You must provide a Java, Javascript, HTML, XML, JSON, or CSS configuration file.");
         }
