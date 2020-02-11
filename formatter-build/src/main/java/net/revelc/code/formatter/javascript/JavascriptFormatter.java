@@ -55,7 +55,7 @@ public class JavascriptFormatter extends AbstractCacheableFormatter implements F
         IDocument doc = new Document(code);
         te.apply(doc);
         String formattedCode = doc.get();
-
+        formattedCode = formattedCode.trim();
         if (code.equals(formattedCode)) {
             return null;
         }

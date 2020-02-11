@@ -53,7 +53,7 @@ public class CssFormatter extends AbstractCacheableFormatter implements Formatte
         CSSOMParser parser = new CSSOMParser(new SACParserCSS3());
         CSSStyleSheetImpl sheet = (CSSStyleSheetImpl) parser.parseStyleSheet(source, null, null);
         String formattedCode = sheet.getCssText(formatter);
-
+        formattedCode = formattedCode.trim();
         if (code.equals(formattedCode)) {
             return null;
         }

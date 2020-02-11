@@ -27,6 +27,7 @@ import net.revelc.code.formatter.xml.lib.XmlDocumentFormatter;
  * @author jam01
  */
 public class XMLFormatter extends AbstractCacheableFormatter implements Formatter {
+
     private XmlDocumentFormatter formatter;
 
     public XMLFormatter() {
@@ -56,11 +57,10 @@ public class XMLFormatter extends AbstractCacheableFormatter implements Formatte
     @Override
     protected String doFormat(String code, LineEnding ending) {
         String formattedCode = formatter.format(code);
-
+        formattedCode = formattedCode.trim();
         if (code.equals(formattedCode)) {
             return null;
         }
-
         return formattedCode;
     }
 

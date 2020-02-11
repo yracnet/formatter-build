@@ -81,6 +81,7 @@ public class JsonFormatter extends AbstractCacheableFormatter implements Formatt
         // note: line ending set in init for this usecase
         Object json = formatter.readValue(code, Object.class);
         String formattedCode = formatter.writer().writeValueAsString(json);
+        formattedCode = formattedCode.trim();
         if (code.equals(formattedCode)) {
             return null;
         }

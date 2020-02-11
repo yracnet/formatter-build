@@ -66,6 +66,7 @@ public abstract class JsoupBasedFormatter extends AbstractCacheableFormatter imp
         document.outputSettings(formatter);
 
         String formattedCode = document.outerHtml();
+        formattedCode = formattedCode.trim();
         if (code.equals(formattedCode)) {
             return null;
         }
