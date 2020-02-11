@@ -16,7 +16,7 @@
         <dependency>
             <groupId>com.github.yracnet.formatter</groupId>
             <artifactId>formatter-build</artifactId>
-            <version>0.2.4</version>
+            <version>0.3.0</version>
         </dependency>
     </dependencies>
 </project>

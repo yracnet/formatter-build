@@ -15,10 +15,12 @@ import net.revelc.code.formatter.LineEnding;
  * @author wyujra
  */
 public interface FormatterBuild {
-/**
- * Create the default instance for FormatterBuild
- * @return 
- */
+
+    /**
+     * Create the default instance for FormatterBuild
+     *
+     * @return
+     */
     public static FormatterBuild create() {
         FormatterBuild build = new FormatterBuildImpl();
         build.setLog(new FormatterLogImpl());
@@ -133,122 +135,17 @@ public interface FormatterBuild {
      */
     public void setLineEnding(LineEnding lineEnding);
 
-    public String getConfigJavaFile();
+    public FormatterConfig getJavaFormatter();
 
-    /**
-     * Set the File XML format eclipse Java Files
-     *
-     * @param configJavaFile
-     */
-    public void setConfigJavaFile(String configJavaFile);
+    public FormatterConfig getCssFormatter();
 
-    public String getConfigJsFile();
+    public FormatterConfig getJsFormatter();
 
-    /**
-     * Set the File XML format eclipse JS Files
-     *
-     * @param configJsFile
-     */
-    public void setConfigJsFile(String configJsFile);
+    public FormatterConfig getJsonFormatter();
 
-    public String getConfigHtmlFile();
+    public FormatterConfig getHtmlFormatter();
 
-    /**
-     * Set the File Properties format eclipse HTML Files
-     *
-     * @param configHtmlFile
-     */
-    public void setConfigHtmlFile(String configHtmlFile);
-
-    public String getConfigXmlFile();
-
-    /**
-     * Set the File Properties format eclipse XML Files
-     *
-     * @param configXmlFile
-     */
-    public void setConfigXmlFile(String configXmlFile);
-
-    public String getConfigJsonFile();
-
-    /**
-     * Set the File Properties format eclipse JSON Files
-     *
-     * @param configJsonFile
-     */
-    public void setConfigJsonFile(String configJsonFile);
-
-    public String getConfigCssFile();
-
-    /**
-     * Set the File Properties format eclipse CSS Files
-     *
-     * @param configCssFile
-     */
-    public void setConfigCssFile(String configCssFile);
-
-    public boolean isSkipJavaFormatting();
-
-    /**
-     * Set Skip format Java files
-     *
-     * @param skipJavaFormatting
-     */
-    public void setSkipJavaFormatting(boolean skipJavaFormatting);
-
-    public boolean isSkipJsFormatting();
-
-    /**
-     * Set Skip format JS files
-     *
-     * @param skipJsFormatting
-     */
-    public void setSkipJsFormatting(boolean skipJsFormatting);
-
-    public boolean isSkipHtmlFormatting();
-
-    /**
-     * Set Skip format HTML files
-     *
-     * @param skipHtmlFormatting
-     */
-    public void setSkipHtmlFormatting(boolean skipHtmlFormatting);
-
-    public boolean isSkipXmlFormatting();
-
-    /**
-     * Set Skip format XML files
-     *
-     * @param skipXmlFormatting
-     */
-    public void setSkipXmlFormatting(boolean skipXmlFormatting);
-
-    public boolean isSkipJsonFormatting();
-
-    /**
-     * Set Skip format JSON files
-     *
-     * @param skipJsonFormatting
-     */
-    public void setSkipJsonFormatting(boolean skipJsonFormatting);
-
-    public boolean isSkipCssFormatting();
-
-    /**
-     * Set Skip format CSS files
-     *
-     * @param skipCssFormatting
-     */
-    public void setSkipCssFormatting(boolean skipCssFormatting);
-
-    public boolean isSkipFormatting();
-
-    /**
-     * Set Skip format all files
-     *
-     * @param skipFormatting
-     */
-    public void setSkipFormatting(boolean skipFormatting);
+    public FormatterConfig getXmlFormatter();
 
     public boolean isUseEclipseDefaults();
 

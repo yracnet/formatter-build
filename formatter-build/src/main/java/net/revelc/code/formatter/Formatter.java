@@ -13,55 +13,38 @@
  */
 package net.revelc.code.formatter;
 
+import dev.yracnet.formatter.FormatterConfig;
 import java.io.File;
 import java.util.Map;
+import net.revelc.code.formatter.ConfigurationSource;
+import net.revelc.code.formatter.LineEnding;
+import net.revelc.code.formatter.Result;
 
 /**
  * @author marvin.froeder
  */
-public interface Formatter {
-
-//    /**
-//     * Get File Configuration
-//     *
-//     * @return
-//     */
-//    public File getFileConfig();
-//
-//    /**
-//     * Set File Configuration
-//     *
-//     * @param fileConfig
-//     */
-//    public void setFileConfig(File fileConfig);
-//
-//    /**
-//     * Get Skip Format Code
-//     *
-//     * @return
-//     */
-//    public boolean getSkip();
-//
-//    /**
-//     * Set Skip Format Code
-//     *
-//     * @param skip
-//     */
-//    public void setSkip(boolean skip);
+public interface Formatter extends FormatterConfig{
 
     /**
      * Initialize the {@link org.eclipse.jdt.core.formatter.CodeFormatter}
      * instance to be used by this component.
+     * @param options
+     * @param cfg
      */
     abstract void init(Map<String, String> options, ConfigurationSource cfg);
 
     /**
      * Format individual file.
+     * @param file
+     * @param ending
+     * @param dryRun
+     * @return 
      */
     abstract Result formatFile(File file, LineEnding ending, boolean dryRun);
 
     /**
      * return true if this formatter have been initialized
+     * @return 
      */
     boolean isInitialized();
 

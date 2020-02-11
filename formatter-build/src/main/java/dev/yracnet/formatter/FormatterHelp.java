@@ -22,6 +22,7 @@ import java.util.Properties;
 import net.revelc.code.formatter.model.ConfigReadException;
 import net.revelc.code.formatter.model.ConfigReader;
 import org.codehaus.plexus.util.DirectoryScanner;
+import org.eclipse.jdt.core.JavaCore;
 import org.xml.sax.SAXException;
 
 /**
@@ -180,4 +181,23 @@ public class FormatterHelp {
             return "";
         }
     }
+
+//    /**
+//     * Return the options to be passed when creating {@link CodeFormatter}
+//     * instance.
+//     *
+//     * @return the formatting options or null if not config file found
+//     * @throws FormatterException the mojo execution exception
+//     */
+//    private Map<String, String> getFormattingOptions(String newConfigFile, boolean useEclipseDefaults) throws FormatterException {
+//        if (useEclipseDefaults) {
+////            log.info("Using Ecipse Defaults");
+//            Map<String, String> options = new HashMap<>();
+//            options.put(JavaCore.COMPILER_SOURCE, this.compilerSource);
+//            options.put(JavaCore.COMPILER_COMPLIANCE, this.compilerCompliance);
+//            options.put(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, this.compilerTargetPlatform);
+//            return options;
+//        }
+//        return FormatterHelp.getOptionsFromConfigFile(newConfigFile, basedir);
+//    }
 }

@@ -40,10 +40,10 @@ public class CssFormatter extends AbstractCacheableFormatter implements Formatte
     @Override
     public void init(Map<String, String> options, ConfigurationSource cfg) {
         super.initCfg(cfg);
-
         int indent = Integer.parseInt(options.getOrDefault("indent", "4"));
         boolean rgbAsHex = Boolean.parseBoolean(options.getOrDefault("rgbAsHex", Boolean.TRUE.toString()));
         formatter = new CSSFormat().setPropertiesInSeparateLines(indent).setRgbAsHex(rgbAsHex);
+        extensions = new String[]{".css"};
     }
 
     @Override

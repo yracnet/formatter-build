@@ -20,7 +20,10 @@ public class MainRun {
         FormatterBuild build = FormatterBuild.create();
         File basedir = new File("../demo");
         System.out.println("--->" + basedir.getCanonicalPath());
+        build.setIncludes("**/*.xml", "**/*.xhtml");
+        //build.setExcludes("**/target/*");
         build.setBasedir(basedir);
+        build.getXmlFormatter().setExtensions(".xml", ".xhtml");
         //build.setDirectories(basedir);
         //build.setDirectories(new File(new File(""), "../demo"));
         build.execute();

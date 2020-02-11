@@ -29,6 +29,10 @@ import net.revelc.code.formatter.xml.lib.XmlDocumentFormatter;
 public class XMLFormatter extends AbstractCacheableFormatter implements Formatter {
     private XmlDocumentFormatter formatter;
 
+    public XMLFormatter() {
+        extensions = new String[]{".xml"};
+    }
+
     @Override
     public void init(Map<String, String> options, ConfigurationSource cfg) {
         super.initCfg(cfg);

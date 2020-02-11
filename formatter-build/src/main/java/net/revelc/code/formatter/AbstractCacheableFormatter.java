@@ -29,6 +29,9 @@ import dev.yracnet.formatter.FormatterLog;
  */
 public abstract class AbstractCacheableFormatter {
 
+    protected String fileConfig;
+    protected boolean skip = false;
+    protected String[] extensions;
     protected FormatterLog log;
     protected Charset encoding;
 
@@ -86,6 +89,40 @@ public abstract class AbstractCacheableFormatter {
         }
 
         return code.replace(current.getChars(), ending.getChars());
+    }
+
+    public String getFileConfig() {
+        return fileConfig;
+    }
+
+    public void setFileConfig(String fileConfig) {
+        this.fileConfig = fileConfig;
+    }
+
+    public boolean isSkip() {
+        return skip;
+    }
+
+    public void setSkip(boolean skip) {
+        this.skip = skip;
+    }
+
+    public String[] getExtensions() {
+        return extensions;
+    }
+
+    public void setExtensions(String[] extensions) {
+        this.extensions = extensions;
+    }
+
+    public boolean isSupport(String name) {
+        for (String ext : extensions) {
+            log.info("-->" + name + " - " + ext + " -- " + name.endsWith(ext));
+            if (name.endsWith(ext)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     protected abstract String doFormat(String code, LineEnding ending) throws IOException, BadLocationException;

@@ -36,6 +36,11 @@ public class JsonFormatter extends AbstractCacheableFormatter implements Formatt
 
     private ObjectMapper formatter;
 
+    public JsonFormatter() {
+        extensions = new String[]{".json"};
+    }
+
+
     @Override
     public void init(Map<String, String> options, ConfigurationSource cfg) {
         super.initCfg(cfg);

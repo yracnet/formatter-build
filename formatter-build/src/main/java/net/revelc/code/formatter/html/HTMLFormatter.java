@@ -14,6 +14,8 @@
 package net.revelc.code.formatter.html;
 
 import net.revelc.code.formatter.Formatter;
+import java.util.Map;
+import net.revelc.code.formatter.ConfigurationSource;
 import net.revelc.code.formatter.LineEnding;
 import net.revelc.code.formatter.jsoup.JsoupBasedFormatter;
 
@@ -22,6 +24,15 @@ import net.revelc.code.formatter.jsoup.JsoupBasedFormatter;
  *
  */
 public class HTMLFormatter extends JsoupBasedFormatter implements Formatter {
+
+    public HTMLFormatter() {
+        extensions = new String[]{".html"};
+    }
+
+    @Override
+    public void init(Map<String, String> options, ConfigurationSource cfg) {
+        super.initCfg(cfg);
+    }
 
     @Override
     public String doFormat(String code, LineEnding ending) {
