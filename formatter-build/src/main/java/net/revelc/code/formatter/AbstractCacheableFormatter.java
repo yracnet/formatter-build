@@ -117,7 +117,7 @@ public abstract class AbstractCacheableFormatter {
 
     public boolean isSupport(String name) {
         for (String ext : extensions) {
-            log.info("-->" + name + " - " + ext + " -- " + name.endsWith(ext));
+            //log.info("-->" + name + " - " + ext + " -- " + name.endsWith(ext));
             if (name.endsWith(ext)) {
                 return true;
             }

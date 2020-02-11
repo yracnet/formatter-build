@@ -274,7 +274,6 @@ public class FormatterBuildImpl implements ConfigurationSource, FormatterBuild {
     private void doFormatFile(File file, ResultCollector rc, Properties hashCache, String basedirPath, boolean dryRun)
             throws IOException, BadLocationException {
         log.debug("Processing file: " + file);
-        log.info("Processing file: " + file);
         String code = readFileAsString(file);
         String originalHash = sha512hash(code);
 
